@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visor académico · Sin validez legal</title>
+  <style>
+    :root { color-scheme: light; font-family: Arial, sans-serif; color: #202137; background: #eeedf5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    [hidden] { display: none !important; }
+    .aviso { position: sticky; top: 0; z-index: 5; padding: 14px 20px; text-align: center; background: #ffdf88; color: #473400; font-weight: 800; }
+    header, main { max-width: 1040px; margin: auto; padding: 28px 22px; }
+    header { display: flex; align-items: center; gap: 16px; }
+    .marca { background: #5544a6; color: white; padding: 14px; border-radius: 16px; font-weight: bold; }
+    h1 { margin: 0 0 6px; font-size: clamp(24px, 4vw, 34px); }
+    header p { margin: 0; color: #66647b; }
+    main { padding-top: 0; }
+    .panel { background: white; border: 1px solid #dedce9; border-radius: 18px; padding: 24px; margin-bottom: 22px; box-shadow: 0 8px 30px #25204408; }
+    label { display: block; margin-bottom: 9px; font-weight: bold; }
+    .busqueda { display: flex; gap: 10px; }
+    input, button, .ejemplo { font: inherit; border-radius: 9px; }
+    input[type=text] { width: 100%; min-width: 0; padding: 13px; border: 1px solid #9996b0; }
+    button { cursor: pointer; padding: 12px 18px; border: 0; background: #5544a6; color: white; font-weight: bold; }
+    button:hover { background: #3e307e; }
+    :focus-visible { outline: 3px solid #e09300; outline-offset: 3px; }
+    .ejemplos { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+    .ejemplo { color: #514298; background: #f0edf9; padding: 8px 12px; text-decoration: none; }
+    #mensaje { margin: 16px 0 0; color: #66480b; }
+    h2 { font-size: 22px; margin: 0; }
+    .cabecera { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .estado { padding: 8px 12px; border-radius: 30px; background: #f0edf9; color: #514298; font-size: 14px; }
+    dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 24px 0; }
+    dt { color: #6c697d; font-size: 13px; margin-bottom: 6px; }
+    dd { margin: 0; font-weight: bold; overflow-wrap: anywhere; }
+    .herramientas { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .herramientas label { margin: 0; }
+    .marco { position: relative; background: #e4e2ec; border: 1px solid #d0cddf; border-radius: 12px; overflow: hidden; }
+    .visor { overflow: auto; max-height: 620px; padding: 24px; }
+    .pagina { position: relative; width: 100%; min-width: 260px; margin: 0 auto; background: white; }
+    #imagen { display: block; width: 100%; height: auto; }
+    .marca-agua { position: absolute; inset: 0; z-index: 2; pointer-events: none; display: grid; align-content: space-around; overflow: hidden; }
+    .marca-agua span { display: block; text-align: center; padding: 18px 0; color: #693fac90; font-size: clamp(20px, 4vw, 42px); font-weight: 900; transform: rotate(-18deg); }
+    .rotulo { position: relative; z-index: 3; padding: 12px; background: #fff0c7; text-align: center; font-weight: bold; color: #5b4100; }
+    .ficticio { padding: 65px 30px; min-height: 420px; text-align: center; border: 10px double #dad4e9; }
+    .ficticio h3 { font-size: 28px; margin: 30px 0; }
+    .ficticio p { line-height: 1.8; }
+    #error-imagen { padding: 40px 25px; line-height: 1.6; }
+    .nota { font-size: 14px; line-height: 1.6; color: #6c697d; margin-bottom: 0; }
+    footer { padding: 12px 20px 28px; text-align: center; color: #6c697d; font-size: 14px; }
+    @media (max-width: 560px) { .panel { padding: 18px; } dl { grid-template-columns: 1fr; } .busqueda { flex-direction: column; } .visor { padding: 10px; } }
+    @media print { .aviso { position: static; } form, .herramientas, .ejemplos { display: none; } .visor { max-height: none; overflow: visible; } .marca-agua { opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div class="aviso">PROYECTO ACADÉMICO — SIN VALIDEZ LEGAL</div>
+  <header>
+    <div class="marca" aria-hidden="true">VA</div>
+    <div><h1>Visor académico</h1><p>Práctica de consulta de documentos por código</p></div>
+  </header>
+  <main>
+    <section class="panel" aria-label="Buscar ejemplo">
+      <form id="formulario">
+        <label for="codigo">Código del ejemplo</label>
+        <div class="busqueda">
+          <input id="codigo" type="text" placeholder="DEMO-001" maxlength="80" required autocomplete="off">
+          <button type="submit">Consultar</button>
+        </div>
+      </form>
+      <div id="ejemplos" class="ejemplos" aria-label="Ejemplos disponibles"></div>
+      <p id="mensaje" role="status" aria-live="polite"></p>
+    </section>
+    <section id="resultado" class="panel" hidden aria-label="Resultado de práctica">
+      <div class="cabecera"><h2 id="titulo"></h2><span class="estado">SIMULACIÓN ACADÉMICA</span></div>
+      <dl>
+        <div><dt>Código ficticio</dt><dd id="dato-codigo"></dd></div>
+        <div><dt>Fecha inicial de ejemplo</dt><dd id="dato-inicio"></dd></div>
+        <div><dt>Fecha final de ejemplo</dt><dd id="dato-fin"></dd></div>
+      </dl>
+      <div class="herramientas">
+        <label for="zoom">Ampliación</label>
+        <input id="zoom" type="range" min="100" max="200" value="100" step="10">
+        <output id="porcentaje" for="zoom">100 %</output>
+      </div>
+      <div class="marco">
+        <div class="rotulo">DOCUMENTO DE PRÁCTICA — SIN VALIDEZ LEGAL</div>
+        <div class="visor">
+          <div id="pagina" class="pagina">
+            <img id="imagen" alt="Imagen de ejemplo académico" hidden>
+            <div id="ficticio" class="ficticio">
+              <p>EJERCICIO DE INFORMÁTICA</p>
+              <h3>Documento de ejemplo</h3>
+              <p>Participante ficticio<br><strong>Estudiante de demostración</strong></p>
+              <p>Contenido creado para practicar HTML, CSS y JavaScript.</p>
+            </div>
+            <p id="error-imagen" hidden>No se pudo cargar la imagen. Comprueba su nombre y que esté junto a index.html en el repositorio.</p>
+            <div class="marca-agua" aria-hidden="true"><span>SIN VALIDEZ LEGAL</span><span>DEMO ACADÉMICA</span><span>SIN VALIDEZ LEGAL</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="nota">Las fechas y los códigos son datos de práctica. Esta página muestra ejemplos académicos y carece de conexión con registros oficiales.</p>
+    </section>
+  </main>
+  <footer>Proyecto universitario · Datos ficticios · Sin validez legal</footer>
+  <script>
+    // EDITA AQUÍ LOS EJEMPLOS. Escribe en imagen el nombre de tu JPG o PNG.
+    // Si imagen está vacío, se muestra el documento ficticio incluido.
+    const documentos = [
+      {
+        codigo: "DEMO-001",
+        titulo: "Primer ejemplo académico",
+        inicio: "2026-11-25",
+        fin: "2026-12-25",
+        imagen: ""
+      },
+      {
+        codigo: "DEMO-002",
+        titulo: "Segundo ejemplo académico",
+        inicio: "2026-11-26",
+        fin: "2026-12-26",
+        imagen: ""
+      }
+    ];
+
+    const obtener = (id) => document.getElementById(id);
+    const normalizar = (codigo) => codigo.trim().toUpperCase();
+    const mostrarFecha = (fecha) => fecha.split("-").reverse().join("/");
+
+    function mostrar(codigo) {
+      const clave = normalizar(codigo);
+      const documento = documentos.find((item) => normalizar(item.codigo) === clave);
+      obtener("codigo").value = clave;
+      obtener("resultado").hidden = !documento;
+      if (!documento) {
+        obtener("mensaje").textContent = "No existe un ejemplo con ese código. Prueba DEMO-001 o DEMO-002.";
+        return;
+      }
+      obtener("mensaje").textContent = "Ejemplo encontrado. Puedes compartir la dirección de esta página.";
+      obtener("titulo").textContent = documento.titulo;
+      obtener("dato-codigo").textContent = documento.codigo;
+      obtener("dato-inicio").textContent = mostrarFecha(documento.inicio);
+      obtener("dato-fin").textContent = mostrarFecha(documento.fin);
+      obtener("zoom").value = "100";
+      obtener("pagina").style.width = "100%";
+      obtener("porcentaje").textContent = "100 %";
+      obtener("error-imagen").hidden = true;
+      obtener("ficticio").hidden = Boolean(documento.imagen);
+      const imagen = obtener("imagen");
+      imagen.onload = null;
+      imagen.onerror = null;
+      imagen.removeAttribute("src");
+      imagen.hidden = true;
+      if (documento.imagen) {
+        imagen.onload = () => { imagen.hidden = false; };
+        imagen.onerror = () => { obtener("error-imagen").hidden = false; };
+        imagen.alt = documento.titulo + " — sin validez legal";
+        imagen.src = "./" + encodeURIComponent(documento.imagen);
+      }
+    }
+
+    obtener("formulario").addEventListener("submit", (evento) => {
+      evento.preventDefault();
+      const codigo = normalizar(obtener("codigo").value);
+      const url = new URL(window.location.href);
+      url.searchParams.set("x", codigo);
+      // También funciona al abrir el archivo descargado con doble clic.
+      if (window.location.protocol === "file:") {
+        window.location.href = url.href;
+        return;
+      }
+      history.pushState(null, "", url);
+      mostrar(codigo);
+    });
+    obtener("zoom").addEventListener("input", (evento) => {
+      const valor = evento.target.value;
+      obtener("pagina").style.width = valor + "%";
+      obtener("porcentaje").textContent = valor + " %";
+    });
+    for (const documento of documentos) {
+      const enlace = document.createElement("a");
+      enlace.className = "ejemplo";
+      enlace.href = "?x=" + encodeURIComponent(documento.codigo);
+      enlace.textContent = documento.codigo;
+      obtener("ejemplos").appendChild(enlace);
+    }
+    function leerEnlace() {
+      const codigo = new URLSearchParams(window.location.search).get("x");
+      if (codigo) {
+        mostrar(codigo);
+      } else {
+        obtener("codigo").value = "";
+        obtener("resultado").hidden = true;
+        obtener("mensaje").textContent = "Selecciona un ejemplo o escribe su código.";
+      }
+    }
+    window.addEventListener("popstate", leerEnlace);
+    leerEnlace();
+  </script>
+</body>
+</html>
